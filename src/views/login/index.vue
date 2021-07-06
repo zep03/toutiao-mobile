@@ -82,6 +82,9 @@ export default {
         const res = await login(this.user)
         console.log(res)
         Toast.success('登录成功')
+
+        // 将后端返回的用户登录状态（token等数据）放到Vuex容器中
+        this.$store.commit('setUser', res.data.data)
       } catch (err) {
         console.log('登陆失败', err)
         Toast.fail('登录失败，手机号或验证码错误！')
