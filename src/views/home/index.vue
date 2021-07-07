@@ -9,7 +9,7 @@
       <!--
         标签页组件有一个功能，只有你第1次查看标签页的时候，才会渲染里面的内容
       -->
-      <van-tabs v-model="active">
+      <van-tabs v-model="active" class="channel-tabs">
         <van-tab v-for="channel in channels" :title="channel.name" :key="channel.id">
           <!--文章列表-->
           <article-list :channel="channel"></article-list>
@@ -45,7 +45,6 @@ export default {
 </script>
 
 <style scoped lang="less">
-
   .home-container {
     /deep/ .van-nav-bar__title {
       max-width: unset;
@@ -60,6 +59,18 @@ export default {
       }
       .van-icon {
         font-size: 16px;
+      }
+    }
+    .channel-tabs {
+      /deep/ .van-tab {
+        border-right: 1px solid #edeff3;
+        border-bottom: 1px solid #edeff3;
+      }
+      /deep/ .van-tabs__line {
+        width: 15px !important;
+        height: 3px;
+        background-color: #3296fa;
+        margin-bottom: 6px;
       }
     }
   }
