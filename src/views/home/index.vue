@@ -3,7 +3,7 @@
       <!--导航栏-->
       <van-nav-bar
         class="app-nav-bar">
-        <van-button class="search-btn" slot="title" icon="search" size="small" type="info" round>搜索</van-button>
+        <van-button class="search-btn" slot="title" icon="search" size="small" type="info" round to="/search">搜索</van-button>
       </van-nav-bar>
       <!--文章频道列表-->
       <!--
@@ -43,7 +43,7 @@ export default {
     return {
       active: 0, // 控制被激活的标签
       channels: [], // 频道列表
-      isChannelEditShow: true // 是否显示频道编辑的弹框
+      isChannelEditShow: false // 是否显示频道编辑的弹框
     }
   },
   computed: {

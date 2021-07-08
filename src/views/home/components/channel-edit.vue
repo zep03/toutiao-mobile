@@ -12,7 +12,7 @@
       <div slot="title" class="channel-title">频道推荐</div>
     </van-cell>
     <van-grid :gutter="10">
-      <van-grid-item @click="onAdd(channel)" class="grid-item" v-for="(channel, index) in recommendChannels" :key="index" :text="channel.name" />
+      <van-grid-item @click="onAdd(channel)" icon="add" class="grid-item" v-for="(channel, index) in recommendChannels" :key="index" :text="channel.name" />
     </van-grid>
   </div>
 </template>
@@ -122,7 +122,11 @@ export default {
 <style scoped lang="less">
 
   .channel-edit {
-    padding-top: 54px;
+    padding-top: 34px;
+    .van-button {
+      width: 72px;
+      height: 35px;
+    }
     .channel-title {
       font-size: 15px;
       color: #333333;
@@ -130,6 +134,8 @@ export default {
     .grid-item {
       width: 80px;
       height: 43px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
       /deep/ .van-grid-item__content {
         background-color: #f4f5f6;
         .van-grid-item__text {
