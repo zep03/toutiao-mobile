@@ -7,48 +7,71 @@
       left-arrow
       @click-left="$router.back()"
     />
-    <h1 class="title">{{ article.title }}</h1>
-    <van-cell center class="user-info">
-      <div slot="title" class="name">{{ article.aut_name }}</div>
-      <van-image
-        class="avatar"
-        slot="icon"
-        fit="cover"
-        round
-        :src="article.aut_photo"
-      />
-      <div slot="label" class="pubdate">{{ article.pubdate | relativeTime }}</div>
-      <van-button :icon="article.is_followed ? '' : 'plus'"
-                  class="follow-btn" round size="small"
-                  @click="onFollow"
-                  :loading="isFollowLoading"
-                  :type="article.is_followed ? 'default' : 'info'">
-        {{ article.is_followed ? '已关注' : '关注' }}
-      </van-button>
-    </van-cell>
-    <div ref="article-content"
-         class="content markdown-body"
-         v-html="article.content">
+    <div class="article-wrap">
+      <h1 class="title">{{ article.title }}</h1>
+      <van-cell center class="user-info">
+        <div slot="title" class="name">{{ article.aut_name }}</div>
+        <van-image
+          class="avatar"
+          slot="icon"
+          fit="cover"
+          round
+          :src="article.aut_photo"
+        />
+        <div slot="label" class="pubdate">{{ article.pubdate | relativeTime }}</div>
+        <van-button :icon="article.is_followed ? '' : 'plus'"
+                    class="follow-btn" round size="small"
+                    @click="onFollow"
+                    :loading="isFollowLoading"
+                    :type="article.is_followed ? 'default' : 'info'">
+          {{ article.is_followed ? '已关注' : '关注' }}
+        </van-button>
+      </van-cell>
+      <div ref="article-content"
+           class="content markdown-body"
+           v-html="article.content">
+      </div>
+      <comment-list
+        @update-total-count="totalCommentCount = $event"
+        :list="commentList"
+        :source="articleId"
+        @reply-click="onReplyClick"
+      ></comment-list>
     </div>
     <!--底部区域-->
-    <div class="article-bottom">
-      <van-button class="comment-btn"
-      type="default"
-      round
-      size="small">
-        写评论
-      </van-button>
-      <van-icon name="comment-o" info="123" color="#777" />
-      <van-icon :name="article.is_collected ? 'star' : 'star-o'"
-                :color="article.is_collected ? 'orange' : '#777'"
-                @click="onCollect"
-      />
-      <van-icon :name="article.attitude === 1 ? 'good-job' : 'good-job-o'"
-                :color="article.attitude === 1 ? 'red' : '#777'"
-                @click="onLike"
-      />
-      <van-icon name="share" color="#777" />
+    <div class="bottom-wrap">
+      <div class="article-bottom">
+        <van-button class="comment-btn"
+                    type="default"
+                    round
+                    @click="isPostShow=true"
+                    size="small">
+          写评论
+        </van-button>
+        <van-icon name="comment-o" :info="totalCommentCount" color="#777" />
+        <van-icon :name="article.is_collected ? 'star' : 'star-o'"
+                  :color="article.is_collected ? 'orange' : '#777'"
+                  @click="onCollect"
+        />
+        <van-icon :name="article.attitude === 1 ? 'good-job' : 'good-job-o'"
+                  :color="article.attitude === 1 ? 'red' : '#777'"
+                  @click="onLike"
+        />
+        <van-icon name="share" color="#777" />
+      </div>
     </div>
+    <!--发布评论弹出层-->
+    <van-popup v-model="isPostShow" position="bottom">
+      <post-comment @post-success="onPostSuccess" :target="articleId"></post-comment>
+    </van-popup>
+    <!--评论回复弹出层-->
+    <van-popup v-model="isReplyShow" position="bottom">
+      <!--这里使用v-if的目的是让组件随着弹出层的显示进行渲染和销毁，防止加载过的组件不重新渲染导致数据不会重新加载的问题-->
+    <comment-reply v-if="isReplyShow" @close="isReplyShow = false"
+                   :comment="replyComment"
+                   :article-id="articleId"
+    />
+    </van-popup>
   </div>
 </template>
 
@@ -57,7 +80,9 @@ import './github-markdown.css'
 import { getArticleById, addCollect, deleteCollect, addLike, deleteLike } from '../../api/article'
 import { addFollow, deleteFollow } from '../../api/user'
 import { ImagePreview } from 'vant'
-
+import CommentList from './components/comment-list.vue'
+import PostComment from './components/post-comment.vue'
+import CommentReply from './components/comment-reply.vue'
 // ImagePreview({
 //   images: [
 //     'https://img01.yzcdn.cn/vant/apple-1.jpg',
@@ -73,8 +98,18 @@ export default {
   data () {
     return {
       article: {}, // 文章数据对象
-      isFollowLoading: false // 关注用户按钮的loading状态
+      isFollowLoading: false, // 关注用户按钮的loading状态
+      isPostShow: false, // 控制发布评论弹出层的显示状态
+      isReplyShow: false, // 控制评论回复弹出层的显示状态
+      commentList: [], // 文章评论列表数据
+      totalCommentCount: 0, // 评论总数量
+      replyComment: '' // 当前回复评论对象
     }
+  },
+  components: {
+    CommentList,
+    PostComment,
+    CommentReply
   },
   props: {
     articleId: {
@@ -160,6 +195,21 @@ export default {
       }
       // 更新视图
       this.$toast.success(`${this.article.attitude === 1 ? '' : '取消'}点赞成功`)
+    },
+    onPostSuccess (comment) {
+      console.log(comment)
+      // 把发布成功的评论数据对象放到评论列表顶部
+      this.commentList.unshift(comment)
+      // 更新评论的总数量
+      this.totalCommentCount++
+      // 关闭发布评论弹出层
+      this.isPostShow = false
+    },
+    onReplyClick (comment) {
+      // console.log('onReply', comment)
+      this.replyComment = comment
+      // 显示回复弹出层
+      this.isReplyShow = true
     }
   }
 }
@@ -200,8 +250,15 @@ export default {
     padding: 14px;
     background-color: #ffffff;
   }
+  .bottom-wrap {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #eee;
+  }
   .article-bottom {
-    padding: 10px;
+    padding: 15px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -211,5 +268,13 @@ export default {
     .van-icon {
       font-size: 25px;
     }
+  }
+  .article-wrap {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 46px;
+    bottom: 69px;
+    overflow-y: auto;
   }
 </style>

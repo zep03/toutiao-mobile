@@ -20,4 +20,9 @@ Vue.filter('relativeTime', value => {
   // console.log(value)
   return dayjs(value).from(dayjs())
 })
+
+Vue.filter('datetime', (value, format = 'YYYY-MM-DD HH:mm:ss') => {
+  // console.log(value)
+  return dayjs(value).format(format)
+})
 // console.log(dayjs('2021-07-08 1:32:05').from(dayjs()))
