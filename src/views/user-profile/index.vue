@@ -73,9 +73,12 @@
      </update-birthday>
     </van-popup>
     <!--修改头像的弹出层-->
-    <van-popup v-model="isEditPhotoShow"
-               position="bottom"
-               style="height: 100%"
+    <van-popup
+      v-if="isEditPhotoShow"
+      class="update-photo-popup"
+       v-model="isEditPhotoShow"
+       position="bottom"
+       style="height: 100%"
     >
       <update-photo
         :file="previewImage"
@@ -135,9 +138,11 @@ export default {
 </script>
 
 <style scoped>
-
   .van-popup {
     background-color: #f5f7f9;
     height: 100%;
+  }
+  .update-photo-popup {
+    background-color: #000;
   }
 </style>
