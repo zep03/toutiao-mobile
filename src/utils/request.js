@@ -98,7 +98,14 @@ request.interceptors.response.use(function (response) {
   return Promise.reject(error)
 })
 function redirectLogin () {
-  router.replace('/login')
+  router.replace({
+    name: 'login',
+    // 传递查询参数，查询参数会以 ？ 作为分隔符放到url后面
+    query: {
+      // router.currentRoute 和 我们在组件中获取的this.$route是一个东西
+      redirect: router.currentRoute.fullPath
+    }
+  })
 }
 
 // 导出

@@ -46,7 +46,12 @@
           </van-grid>
         </van-cell-group>
         <div v-else class="not-login">
-          <div @click="$router.push('/login')">
+          <div @click="$router.push({
+            name: 'login',
+            query: {
+              redirect: '/my'
+            }
+          })">
             <img class="mobile" src="./下载.png" alt="">
             <div class="text">注册 / 登录</div>
           </div>

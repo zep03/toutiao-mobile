@@ -88,7 +88,8 @@ export default {
         // 清除layout的缓存，让它重新渲染
         this.$store.commit('removeCachePage', 'LayoutIndex')
 
-        this.$router.back()
+        // this.$router.back() // 这样写不好
+        this.$router.push(this.$route.query.redirect || '/')
       } catch (err) {
         console.log('登陆失败', err)
         Toast.fail('登录失败，手机号或验证码错误！')
