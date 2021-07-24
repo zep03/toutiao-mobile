@@ -85,6 +85,9 @@ export default {
 
         // 将后端返回的用户登录状态（token等数据）放到Vuex容器中
         this.$store.commit('setUser', res.data.data)
+        // 清除layout的缓存，让它重新渲染
+        this.$store.commit('removeCachePage', 'LayoutIndex')
+
         this.$router.back()
       } catch (err) {
         console.log('登陆失败', err)
